@@ -18,7 +18,7 @@
 
 %% to start manually from console with start.sh
 start() ->
-    [begin application:start(A), io:format("~p~n", [A]) end || A <- ?APPS].
+    [begin R = application:start(A), io:format("~p: ~p~n", [A, R]) end || A <- ?APPS].
 
 start(_StartType, _StartArgs) ->
     nitrogen_elements_examples_sup:start_link().
