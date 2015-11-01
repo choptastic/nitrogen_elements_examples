@@ -9,7 +9,6 @@
 	 init/1
 	]).
 
--compile(export_all).
 -include_lib ("nitrogen_core/include/wf.hrl").
 -define(APP, nitrogen_elements_examples).
 
@@ -25,28 +24,5 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, Port} = application:get_env(port),
-    io:format("Starting Cowboy Server ~p ~n", [Port]),
-    {ok, _} = cowboy:start_http(http, 100,
-				[{port, Port}],
-				[{env, [{dispatch, dispatch_rules()}]}]),
+	application:start(simple_bridge),
     {ok, {{one_for_one, 5, 10}, []}}.
-
-dispatch_rules() ->
-    cowboy_router:compile(
-	%% {Host, list({Path, Handler, Opts})}
-	[{'_', [
-	    {["/favicon.ico"], cowboy_static, [{directory, {priv_dir, ?APP, [<<"static">>]}}, {file, "favicon.ico"}]},
-	    {["/content/[...]"], cowboy_static, [{directory, {priv_dir, ?APP, [<<"content">>]}},
-		{mimetypes, {fun mimetypes:path_to_mimes/2, default}}]},
-	    {["/static/[...]"], cowboy_static, [{directory, {priv_dir, ?APP, [<<"static">>]}},
-		{mimetypes, {fun mimetypes:path_to_mimes/2, default}}]},
-	    {["/plugins/[...]"], cowboy_static, [{directory, {priv_dir, ?APP, [<<"plugins">>]}},
-		{mimetypes, {fun mimetypes:path_to_mimes/2, default}}]},
-	    {["/doc/[...]"], cowboy_static, [{directory, {priv_dir, ?APP, [<<"doc">>]}},
-		{mimetypes, {fun mimetypes:path_to_mimes/2, default}}]},
-	    {["/get_jqgrid_data/[...]"], get_jqgrid_data, []},
-	    {["/websocket"], ws_handler, []},
-	    {["/jqdata"], jqdata, []},
-	    {'_', nitrogen_cowboy, []}
-    ]}]).
